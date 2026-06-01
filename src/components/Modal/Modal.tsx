@@ -2,6 +2,7 @@ import './Modal.css'
 import {createPortal} from "react-dom";
 import Overlay from "../Overlay/Overlay.tsx";
 import type {Launch} from "../../types.ts";
+import defImg from '../../img/No_Image_Available.jpg'
 
 type ModalProps = {
   launch: Launch,
@@ -22,7 +23,8 @@ const Modal = ({launch, onClose}: ModalProps) => {
             <button className="modal-close" onClick={onClose}>✖</button>
           </div>
           <div className="modal-img">
-            <img src={launch.links?.mission_patch} alt={'image'}/>
+            {launch.links?.mission_patch ? <img src={launch.links?.mission_patch} alt={'image'}/> :
+              <img src={defImg} alt="No Image"/>}
           </div>
           <div className="modal-content">
             <p className="modal-text__bold">Mission name:</p>

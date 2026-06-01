@@ -3,6 +3,7 @@ import {Card, Text, Image, Button, Flex, Title} from "@mantine/core";
 import './Launches.css'
 import Modal from "../Modal/Modal.tsx";
 import type {Action, Launch, State} from "../../types.ts";
+import defImg from '../../img/No_Image_Available.jpg'
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
@@ -67,8 +68,6 @@ const LaunchesList = () => {
     fetchFunc()
   }, [])
 
-  console.log(state.launches)
-
   return (
     <div className="launches_list">
       <Title order={1} mb={20}>SpaceX Launches 2020</Title>
@@ -88,12 +87,19 @@ const LaunchesList = () => {
               }}
             >
               <Flex mt={30} justify="center">
-                <Image
+                {launch.links?.mission_patch
+                  ? <Image
                   src={launch.links?.mission_patch}
                   w={100}
                   h={100}
                   alt="Image"
-                />
+                /> : <Image
+                  src={defImg}
+                  w={100}
+                  h={100}
+                  alt="Image"
+                  radius={5}
+                />}
               </Flex>
 
               <Text mt={30} ta="center" fw={500}>
