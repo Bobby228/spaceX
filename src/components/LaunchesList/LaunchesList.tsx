@@ -24,6 +24,11 @@ const reducer = (state: State, action: Action) => {
         isOpen: false,
         selectedLaunch: null,
       };
+    case 'set_error':
+      return {
+        ...state,
+        error: action.payload
+      };
     default:
       return state;
   }
@@ -34,6 +39,7 @@ const LaunchesList = () => {
     launches: [],
     isOpen: false,
     selectedLaunch: null,
+    error: null,
   })
 
   const openModal = (launch: Launch) => {
@@ -56,67 +62,84 @@ const LaunchesList = () => {
     })
   }
 
+  const handleError = (error) => {
+    dispatch({
+      type: 'set_error',
+      payload: error.message
+    })
+  }
+
   useEffect(() => {
     const fetchFunc = async () => {
-      const response = await fetch(
-        'https://api.spacexdata.com/v3/launches?launch_year=2020'
-      );
-      const resJson = await response.json();
-      handleLaunches(resJson);
-      console.log(resJson);
-    }
-    fetchFunc()
-  }, [])
+      try {
+        const response = await fetch(
+          'https://api.spacexdata.com/v3/launches?launch_year=2020'
+        );
+        const resJson = await response.json();
+        handleLaunches(resJson);
+      } catch (e) {
+        handleError(e)
+      }
+    };
+
+    fetchFunc();
+  }, []);
 
   return (
     <div className="launches_list">
       <Title order={1} mb={20}>SpaceX Launches 2020</Title>
-      <Flex  justify='center' direction="row" wrap="wrap" gap="md">
-        {state.launches.map((launch) => {
-          return (
-            <Card
-              key={launch.mission_name}
-              w={280}
-              shadow="sm"
-              padding="md"
-              radius="md"
-              withBorder
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <Flex mt={30} justify="center">
-                {launch.links?.mission_patch
-                  ? <Image
-                  src={launch.links?.mission_patch}
-                  w={100}
-                  h={100}
-                  alt="Image"
-                /> : <Image
-                  src={defImg}
-                  w={100}
-                  h={100}
-                  alt="Image"
-                  radius={5}
-                />}
-              </Flex>
+      {state.error
+        ? <h1>Ошибка загрузки!</h1>
+        : state.launches.length > 0
+          ?
+          <Flex  justify='center' direction="row" wrap="wrap" gap="md">
+            {state.launches.map((launch) => {
+              return (
+                <Card
+                  key={launch.mission_name}
+                  w={280}
+                  shadow="sm"
+                  padding="md"
+                  radius="md"
+                  withBorder
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <Flex mt={30} justify="center">
+                    {launch.links?.mission_patch
+                      ? <Image
+                        src={launch.links?.mission_patch}
+                        w={100}
+                        h={100}
+                        alt="Image"
+                      /> : <Image
+                        src={defImg}
+                        w={100}
+                        h={100}
+                        alt="Image"
+                        radius={5}
+                      />}
+                  </Flex>
 
-              <Text mt={30} ta="center" fw={500}>
-                {launch.mission_name}
-              </Text>
+                  <Text mt={30} ta="center" fw={500}>
+                    {launch.mission_name}
+                  </Text>
 
-              <Text mt={15} mb={40} ta="center" size="sm" c="dimmed">
-                {launch.rocket?.rocket_name}
-              </Text>
+                  <Text mt={15} mb={40} ta="center" size="sm" c="dimmed">
+                    {launch.rocket?.rocket_name}
+                  </Text>
 
-              <Button onClick={() => openModal(launch)} mt='auto' color="blue" fullWidth>
-                See more
-              </Button>
-            </Card>
-          );
-        })}
-      </Flex>
+                  <Button onClick={() => openModal(launch)} mt='auto' color="blue" fullWidth>
+                    See more
+                  </Button>
+                </Card>
+              );
+            })}
+          </Flex>
+          : <h1>Загрузка...</h1>
+      }
       {state.isOpen && state.selectedLaunch &&
         <Modal launch={state.selectedLaunch} onClose={closeModal} />
       }

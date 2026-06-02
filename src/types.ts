@@ -24,6 +24,7 @@ export type State = {
   launches: Launch[];
   isOpen: boolean;
   selectedLaunch: Launch | null;
+  error: string | null;
 };
 
 export type Action =
@@ -37,4 +38,8 @@ export type Action =
 }
   | {
   type: 'close_modal';
+}
+  | {
+  type: 'set_error';
+  payload: string
 };
